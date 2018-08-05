@@ -39,7 +39,7 @@ app.get(`/todos/:id`, (req, res) => {
     if (!ObjectId.isValid(id))
         res.status(404).send()
     else {
-        Todo.findById(req.params.id)
+        Todo.findById(id)
         .then(todo => {
             if (todo === null)
                 res.status(404).send()
@@ -50,6 +50,23 @@ app.get(`/todos/:id`, (req, res) => {
             res.status(400).send()
         })
     }
+})
+
+app.delete(`/todos/:id`, (req, res) => {
+    const id = req.params.id
+    if (!ObjectId.isValid(id))
+        res.status(404).send()
+    else
+        Todo.findByIdAndRemove(id)
+        .then(todo => {
+            if (todo === null)
+                res.status(404).send()
+            else
+                res.send({todo})
+        })
+        .catch(e => {
+            res.status(400).send()
+        })
 })
 
 app.listen(port, () => console.log(`Listening on port ${port}`))
