@@ -142,3 +142,54 @@ describe(`DELTE /todos/:id`, () => {
         .end(done)
     })
 })
+
+describe(`PATCH /todos/:id`, () => {
+    it (`should update the todo`, done => {
+        const newTodoInfo = {
+            text: `New text on Todo`,
+            completed: true
+        }
+
+        request(app)
+        .patch(`/todos/${todosSeed[0]._id.toHexString()}`)
+        .send(newTodoInfo)
+        .expect(200)
+        .expect(res => {
+            expect(res.body.todo.text).toBe(newTodoInfo.text)
+            expect(res.body.todo.completed).toBe(newTodoInfo.completed)
+        })
+        .end(done)
+    })
+
+    it (`should clear completedAt when todo is not completed`, done => {
+        const newTodoInfo = {
+            text: `Another new text on Todo`,
+            completed: false
+        }
+
+        request(app)
+        .patch(`/todos/${todosSeed[0]._id.toHexString()}`)
+        .send(newTodoInfo)
+        .expect(200)
+        .expect(res => {
+            expect(res.body.todo.text).toBe(newTodoInfo.text)
+            expect(res.body.todo.completed).toBe(newTodoInfo.completed)
+            expect(res.body.todo.completedAt).toBeNull()
+        })
+        .end(done)
+    })
+
+    it (`should return 404 if todo not found`, done => {
+        request(app)
+        .patch(`/todos/${new ObjectId().toHexString()}`)
+        .expect(404)
+        .end(done)
+    })
+
+    it (`should return for non-object ids`, done => {
+        request(app)
+        .patch(`/todos/1`)
+        .expect(404)
+        .end(done)
+    })
+})
